@@ -21,9 +21,11 @@ def configure_logger():
     
     file_handler=logging.FileHandler(log_file_path,encoding="utf-8")
     file_handler.setFormatter(formatt)
+    file_handler.setLevel(logging.INFO)
     
     console_handler=logging.StreamHandler(log_file_path)
     console_handler.setFormatter(formatt)
+    console_handler.setLevel(logging.INFO)
     
     logger.addHandler(file_handler)
     logger.addHandler(console_handler)
