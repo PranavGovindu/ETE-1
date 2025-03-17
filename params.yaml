@@ -1,0 +1,34 @@
+base:
+  random_state: 42
+  target_column: sentiment
+
+data_ingestion:
+  dataset_name: "Twitter" 
+  test_size: 0.2
+  sample_size: 500
+  data_path : "local_S3/Twitter_Data.csv"
+
+data_preprocessing:
+  remove_stopwords: true
+  lowercase: true
+  remove_punctuation: true
+  max_features: 5000
+
+feature_engineering:
+  vectorizer_type: "tfidf" 
+  ngram_range: [1, 2]
+
+model_building:
+  model_type: "logistic_regression" 
+  hyperparameters:
+    logistic_regression:
+      C: 1.0
+      max_iter: 100
+    naive_bayes:
+      alpha: 1.0
+    random_forest:
+      n_estimators: 100
+      max_depth: 10
+
+model_evaluation:
+  metrics: ["accuracy", "precision", "recall", "f1"]
