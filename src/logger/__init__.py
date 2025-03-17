@@ -28,7 +28,7 @@ def configure_logger():
     file_handler.setLevel(logging.INFO)
     
     # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)  # Use sys.stdout instead of file path
+    console_handler = logging.StreamHandler(sys.stdout)  
     console_handler.setFormatter(formatter)
     console_handler.setLevel(logging.INFO)
     

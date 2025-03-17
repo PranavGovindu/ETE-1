@@ -13,6 +13,8 @@ data_preprocessing:
   lowercase: true
   remove_punctuation: true
   max_features: 5000
+  train_path: "data/raw/train.csv"
+  test_path : "data/raw/test.csv"
 
 feature_engineering:
   vectorizer_type: "tfidf" 
