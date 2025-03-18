@@ -19,6 +19,7 @@ data_preprocessing:
 feature_engineering:
   vectorizer_type: "tfidf" 
   ngram_range: [1, 2]
+  max_features: 500
 
 model_building:
   model_type: "logistic_regression" 
@@ -26,6 +27,8 @@ model_building:
     logistic_regression:
       C: 1.0
       max_iter: 100
+      penalty: "l2"
+      solver : "liblinear"
     naive_bayes:
       alpha: 1.0
     random_forest:
