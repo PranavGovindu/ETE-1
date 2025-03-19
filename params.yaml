@@ -1,6 +1,7 @@
 base:
   random_state: 42
   target_column: sentiment
+  experiment_name: "Sentiment Analysis"
 
 data_ingestion:
   dataset_name: "Twitter" 

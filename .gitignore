@@ -177,3 +177,5 @@ data/
 local_s3/
 
 models/
+logs/
+src/model/test.py
