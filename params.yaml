@@ -27,7 +27,7 @@ model_building:
   hyperparameters:
     logistic_regression:
       C: 1.0
-      max_iter: 100
+      max_iter: 200
       penalty: "l2"
       solver : "liblinear"
     naive_bayes:
@@ -38,3 +38,8 @@ model_building:
 
 model_evaluation:
   metrics: ["accuracy", "precision", "recall", "f1"]
+
+model_registry:
+  model_name : "logistic_regression v1"
+  model_stage : "staging"
+  model_alias : "contender"
