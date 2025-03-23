@@ -82,7 +82,7 @@ def main():
         trained_model = model_builder.train_model(X_train, y_train,params["model_building"]["hyperparameters"]["logistic_regression"]["C"],params["model_building"]["hyperparameters"]["logistic_regression"]["solver"],params["model_building"]["hyperparameters"]["logistic_regression"]["penalty"])
 
         # Save model in ONNX format
-        model_path = "models/logistic_regression.onnx"
+        model_path = "models/model.onnx"
         model_builder.save_model(trained_model, model_path)
 
         logger.info("Model Building done successfully")

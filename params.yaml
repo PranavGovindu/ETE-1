@@ -3,11 +3,18 @@ base:
   target_column: sentiment
   experiment_name: "Sentiment Analysis"
 
+paths:
+  model_path: "models/model.onnx"  # Match with dvc.yaml
+  test_data_path: "data/processed/test_tfidf.csv"  # Expected by your code
+  metrics_path: "reports/metrics.json"
+  model_info_path: "reports/model_info.json"
+  experiment_info_path: "reports/experiment_info.json"  # Needed for model_registration
+
 data_ingestion:
-  dataset_name: "Twitter" 
+  dataset_name: "Twitter"
   test_size: 0.2
   sample_size: 500
-  data_path : "local_S3/Twitter_Data.csv"
+  data_path: "local_S3/Twitter_Data.csv"
 
 data_preprocessing:
   remove_stopwords: true
@@ -15,31 +22,26 @@ data_preprocessing:
   remove_punctuation: true
   max_features: 5000
   train_path: "data/raw/train.csv"
-  test_path : "data/raw/test.csv"
+  test_path: "data/raw/test.csv"
 
 feature_engineering:
-  vectorizer_type: "tfidf" 
+  vectorizer_type: "tfidf"
   ngram_range: [1, 2]
   max_features: 500
 
 model_building:
-  model_type: "logistic_regression" 
+  model_type: "logistic_regression"
   hyperparameters:
     logistic_regression:
       C: 1.0
       max_iter: 200
       penalty: "l2"
-      solver : "liblinear"
-    naive_bayes:
-      alpha: 1.0
-    random_forest:
-      n_estimators: 100
-      max_depth: 10
-
+      solver: "liblinear"
+   
 model_evaluation:
   metrics: ["accuracy", "precision", "recall", "f1"]
 
 model_registry:
-  model_name : "logistic_regression v1"
-  model_stage : "staging"
-  model_alias : "contender"
+  model_name: "logistic_regression v1"
+  model_stage: "staging"
+  model_alias: "contender"

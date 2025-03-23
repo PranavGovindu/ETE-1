@@ -1,0 +1,80 @@
+# updated dvc.yaml
+
+stages:
+  data_ingestion:
+    cmd: python src/data/data_ingestion.py
+    deps:
+    - src/data/data_ingestion.py
+    params:
+    - data_ingestion.test_size
+    - data_ingestion.sample_size
+    - data_ingestion.data_path
+    - base.random_state
+  
+    
+    outs:
+    - data/raw
+
+  data_preprocessing:
+    cmd: python src/data/data_preprocessing.py
+    deps:
+    - data/raw
+    - src/data/data_preprocessing.py
+    params:
+    - data_preprocessing.remove_stopwords
+    - data_preprocessing.lowercase
+    - data_preprocessing.remove_punctuation
+    - data_preprocessing.train_path
+    - data_preprocessing.test_path
+    outs:
+    - data/interim
+
+  feature_engineering:
+    cmd: python src/features/feature_engineering.py
+    deps:
+    - data/interim
+    - src/features/feature_engineering.py
+    params:
+    - feature_engineering.max_features
+    - feature_engineering.ngam_range
+    outs:
+    - data/processed
+    - models/vectorizer.pkl
+
+  model_building:
+    cmd: python src/model/model_building.py
+
+    deps:
+    - data/processed
+    - src/model/model_building.py
+    params:
+    - model_building.model_type
+    - model_building.hyperparameters
+    - model_building.hyperparameters.logistic_regression.C
+    - model_building.hyperparameters.logistic_regression.max_iter
+    - model_building.hyperparameters.logistic_regression.penalty
+    - model_building.hyperparameters.logistic_regression.solver
+
+    outs:
+    - models/model.onnx
+
+  model_evaluation:
+    cmd: python src/model/model_evaluation.py
+    deps:
+    - models/model.onnx
+    - src/model/model_evaluation.py
+    params:
+    - model_evaluation.metrics
+    - base.experiment_name
+
+    metrics:
+    - reports/metrics.json
+    outs:
+    - reports/model_info.json
+    - reports/metrics.json
+
+  model_registration:
+    cmd: python src/model/register_model.py
+    deps:
+    - reports/model_info.json
+    - src/model/register_model.py

@@ -131,7 +131,7 @@ def main():
         
         # Start a run
         with mlflow.start_run() as run:
-            model_path = params.get('paths', {}).get('model_path', 'models/logistic_regression.onnx')
+            model_path = params.get('paths', {}).get('model_path', 'models/model.onnx')
             test_data_path = params.get('paths', {}).get('test_data_path', 'data/processed/test_tfidf.csv')
             metrics_path = params.get('paths', {}).get('metrics_path', 'reports/metrics.json')
             model_info_path = params.get('paths', {}).get('model_info_path', 'reports/model_info.json')
