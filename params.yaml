@@ -8,7 +8,6 @@ paths:
   test_data_path: "data/processed/test_tfidf.csv"  # Expected by your code
   metrics_path: "reports/metrics.json"
   model_info_path: "reports/model_info.json"
-  experiment_info_path: "reports/experiment_info.json"  # Needed for model_registration
 
 data_ingestion:
   dataset_name: "Twitter"

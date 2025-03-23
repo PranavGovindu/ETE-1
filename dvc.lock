@@ -1,0 +1,143 @@
+schema: '2.0'
+stages:
+  data_ingestion:
+    cmd: python src/data_handling/data_ingestion.py
+    deps:
+    - path: src/data_handling/data_ingestion.py
+      hash: md5
+      md5: ae8ed7c0336ef3caa5cf6dd3805a26df
+      size: 3745
+    params:
+      params.yaml:
+        base.random_state: 42
+        data_ingestion.data_path: local_S3/Twitter_Data.csv
+        data_ingestion.sample_size: 500
+        data_ingestion.test_size: 0.2
+    outs:
+    - path: data/raw
+      hash: md5
+      md5: 27958b421b7a1beb7e1b2fec844a1e8d.dir
+      size: 61045
+      nfiles: 2
+  data_preprocessing:
+    cmd: python src/data_handling/data_preprocessing.py
+    deps:
+    - path: data/raw
+      hash: md5
+      md5: 27958b421b7a1beb7e1b2fec844a1e8d.dir
+      size: 61045
+      nfiles: 2
+    - path: src/data_handling/data_preprocessing.py
+      hash: md5
+      md5: 22b6f8f58f50939f98ee10ca0a21da0d
+      size: 2985
+    params:
+      params.yaml:
+        data_preprocessing.lowercase: true
+        data_preprocessing.remove_punctuation: true
+        data_preprocessing.remove_stopwords: true
+        data_preprocessing.test_path: data/raw/test.csv
+        data_preprocessing.train_path: data/raw/train.csv
+    outs:
+    - path: data/interim
+      hash: md5
+      md5: 3a6c628c6346ab44bc3aa0f0ad00c8ad.dir
+      size: 46316
+      nfiles: 2
+  feature_engineering:
+    cmd: python src/features/feature_engineering.py
+    deps:
+    - path: data/interim
+      hash: md5
+      md5: 3a6c628c6346ab44bc3aa0f0ad00c8ad.dir
+      size: 46316
+      nfiles: 2
+    - path: src/features/feature_engineering.py
+      hash: md5
+      md5: 8aff153b4e67f00042ace7a9bd4f5fdf
+      size: 4098
+    params:
+      params.yaml:
+        feature_engineering.max_features: 500
+        feature_engineering.ngram_range:
+        - 1
+        - 2
+    outs:
+    - path: data/processed
+      hash: md5
+      md5: 87f34bb90af1c19f5c57070fb4f4a3d0.dir
+      size: 1057784
+      nfiles: 2
+    - path: models/vectorizer.pkl
+      hash: md5
+      md5: 1879c9658c1531aea8b4dfee0f65f2bb
+      size: 18991
+  model_building:
+    cmd: python src/model/model_building.py
+    deps:
+    - path: data/processed
+      hash: md5
+      md5: 87f34bb90af1c19f5c57070fb4f4a3d0.dir
+      size: 1057784
+      nfiles: 2
+    - path: src/model/model_building.py
+      hash: md5
+      md5: 781f2fd9cdf50087020e127f1404dd87
+      size: 3312
+    params:
+      params.yaml:
+        model_building.hyperparameters:
+          logistic_regression:
+            C: 1.0
+            max_iter: 200
+            penalty: l2
+            solver: liblinear
+        model_building.hyperparameters.logistic_regression.C: 1.0
+        model_building.hyperparameters.logistic_regression.max_iter: 200
+        model_building.hyperparameters.logistic_regression.penalty: l2
+        model_building.hyperparameters.logistic_regression.solver: liblinear
+        model_building.model_type: logistic_regression
+    outs:
+    - path: models/model.onnx
+      hash: md5
+      md5: 42f7d427c6054cad3d080cb86c650bc3
+      size: 8146
+  model_evaluation:
+    cmd: python src/model/model_evaluation.py
+    deps:
+    - path: models/model.onnx
+      hash: md5
+      md5: 42f7d427c6054cad3d080cb86c650bc3
+      size: 8146
+    - path: src/model/model_evaluation.py
+      hash: md5
+      md5: 3902b99c48d057fc875bf07e64be4f66
+      size: 6051
+    params:
+      params.yaml:
+        base.experiment_name: Sentiment Analysis
+        model_evaluation.metrics:
+        - accuracy
+        - precision
+        - recall
+        - f1
+    outs:
+    - path: reports/metrics.json
+      hash: md5
+      md5: 95ca49f1e4848a0d581fd231cb90e5ac
+      size: 131
+    - path: reports/model_info.json
+      hash: md5
+      md5: 8bad9e96a82a71d514d9216650668a9d
+      size: 94
+  model_registration:
+    cmd: python src/model/model_registry.py
+    deps:
+    - path: reports/model_info.json
+      hash: md5
+      md5: 8bad9e96a82a71d514d9216650668a9d
+      size: 94
+    - path: src/model/model_registry.py
+      hash: md5
+      md5: aa9b0412e26c6ee597a3c619420a4dd8
+      size: 2878

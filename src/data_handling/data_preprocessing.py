@@ -70,7 +70,7 @@ class PreProcess():
             raise e
 
 def main():
-    
+    os.makedirs('data/interim', exist_ok=True)
     
     with open('params.yaml') as params_file:
         params = yaml.safe_load(params_file)

@@ -2,9 +2,9 @@
 
 stages:
   data_ingestion:
-    cmd: python src/data/data_ingestion.py
+    cmd: python src/data_handling/data_ingestion.py
     deps:
-    - src/data/data_ingestion.py
+    - src/data_handling/data_ingestion.py
     params:
     - data_ingestion.test_size
     - data_ingestion.sample_size
@@ -16,16 +16,17 @@ stages:
     - data/raw
 
   data_preprocessing:
-    cmd: python src/data/data_preprocessing.py
-    deps:
-    - data/raw
-    - src/data/data_preprocessing.py
+    cmd: python src/data_handling/data_preprocessing.py
     params:
     - data_preprocessing.remove_stopwords
     - data_preprocessing.lowercase
     - data_preprocessing.remove_punctuation
     - data_preprocessing.train_path
     - data_preprocessing.test_path
+    deps:
+    - data/raw
+    - src/data_handling/data_preprocessing.py
+   
     outs:
     - data/interim
 
@@ -36,7 +37,7 @@ stages:
     - src/features/feature_engineering.py
     params:
     - feature_engineering.max_features
-    - feature_engineering.ngam_range
+    - feature_engineering.ngram_range
     outs:
     - data/processed
     - models/vectorizer.pkl
@@ -71,10 +72,9 @@ stages:
     - reports/metrics.json
     outs:
     - reports/model_info.json
-    - reports/metrics.json
 
   model_registration:
-    cmd: python src/model/register_model.py
+    cmd: python src/model/model_registry.py
     deps:
     - reports/model_info.json
-    - src/model/register_model.py
+    - src/model/model_registry.py
