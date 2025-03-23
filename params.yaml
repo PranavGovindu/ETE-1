@@ -12,7 +12,7 @@ paths:
 data_ingestion:
   dataset_name: "Twitter"
   test_size: 0.2
-  sample_size: 500
+  sample_size: 1500
   data_path: "local_S3/Twitter_Data.csv"
 
 data_preprocessing:

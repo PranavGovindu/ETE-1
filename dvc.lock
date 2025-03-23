@@ -11,21 +11,21 @@ stages:
       params.yaml:
         base.random_state: 42
         data_ingestion.data_path: local_S3/Twitter_Data.csv
-        data_ingestion.sample_size: 500
+        data_ingestion.sample_size: 1500
         data_ingestion.test_size: 0.2
     outs:
     - path: data/raw
       hash: md5
-      md5: 27958b421b7a1beb7e1b2fec844a1e8d.dir
-      size: 61045
+      md5: 5dd7ea828f7c9e103a32a77bb650895f.dir
+      size: 185259
       nfiles: 2
   data_preprocessing:
     cmd: python src/data_handling/data_preprocessing.py
     deps:
     - path: data/raw
       hash: md5
-      md5: 27958b421b7a1beb7e1b2fec844a1e8d.dir
-      size: 61045
+      md5: 5dd7ea828f7c9e103a32a77bb650895f.dir
+      size: 185259
       nfiles: 2
     - path: src/data_handling/data_preprocessing.py
       hash: md5
@@ -41,16 +41,16 @@ stages:
     outs:
     - path: data/interim
       hash: md5
-      md5: 3a6c628c6346ab44bc3aa0f0ad00c8ad.dir
-      size: 46316
+      md5: c13fcaff221973a575d35ccf6b3feaa9.dir
+      size: 140842
       nfiles: 2
   feature_engineering:
     cmd: python src/features/feature_engineering.py
     deps:
     - path: data/interim
       hash: md5
-      md5: 3a6c628c6346ab44bc3aa0f0ad00c8ad.dir
-      size: 46316
+      md5: c13fcaff221973a575d35ccf6b3feaa9.dir
+      size: 140842
       nfiles: 2
     - path: src/features/feature_engineering.py
       hash: md5
@@ -65,20 +65,20 @@ stages:
     outs:
     - path: data/processed
       hash: md5
-      md5: 87f34bb90af1c19f5c57070fb4f4a3d0.dir
-      size: 1057784
+      md5: 2354cdf829ecab43be5ce5363bec5652.dir
+      size: 3160362
       nfiles: 2
     - path: models/vectorizer.pkl
       hash: md5
-      md5: 1879c9658c1531aea8b4dfee0f65f2bb
-      size: 18991
+      md5: 291d100af3b0278d40d89579063323af
+      size: 18725
   model_building:
     cmd: python src/model/model_building.py
     deps:
     - path: data/processed
       hash: md5
-      md5: 87f34bb90af1c19f5c57070fb4f4a3d0.dir
-      size: 1057784
+      md5: 2354cdf829ecab43be5ce5363bec5652.dir
+      size: 3160362
       nfiles: 2
     - path: src/model/model_building.py
       hash: md5
@@ -100,14 +100,14 @@ stages:
     outs:
     - path: models/model.onnx
       hash: md5
-      md5: 42f7d427c6054cad3d080cb86c650bc3
+      md5: 3879a7a882cb843443a4087f718c957b
       size: 8146
   model_evaluation:
     cmd: python src/model/model_evaluation.py
     deps:
     - path: models/model.onnx
       hash: md5
-      md5: 42f7d427c6054cad3d080cb86c650bc3
+      md5: 3879a7a882cb843443a4087f718c957b
       size: 8146
     - path: src/model/model_evaluation.py
       hash: md5
@@ -124,18 +124,18 @@ stages:
     outs:
     - path: reports/metrics.json
       hash: md5
-      md5: 95ca49f1e4848a0d581fd231cb90e5ac
-      size: 131
+      md5: 7f0cc56ea85eb6beeb1eb32d563e9d84
+      size: 145
     - path: reports/model_info.json
       hash: md5
-      md5: 8bad9e96a82a71d514d9216650668a9d
+      md5: 81355fbde3af3ccd07c4782173dae89b
       size: 94
   model_registration:
     cmd: python src/model/model_registry.py
     deps:
     - path: reports/model_info.json
       hash: md5
-      md5: 8bad9e96a82a71d514d9216650668a9d
+      md5: 81355fbde3af3ccd07c4782173dae89b
       size: 94
     - path: src/model/model_registry.py
       hash: md5
