@@ -5,11 +5,14 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../.
 from src.logger import logger
 from sklearn.model_selection import train_test_split
 import pandas as pd
+from src.connections import s3_connection
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class Data_Ingestion():
     def __init__(self, params_path='params.yaml'):
         self.params = self.load_params(params_path)
-        self.data_path = self.params["data_ingestion"]["data_path"]
         self.sample_size = self.params["data_ingestion"]["sample_size"]
         self.random_state = self.params["base"]["random_state"]
         self.test_size = self.params["data_ingestion"]["test_size"]
@@ -40,7 +43,7 @@ class Data_Ingestion():
             df = pd.read_csv(self.data_path).dropna()
             if self.sample_size < len(df):
                 df = df.sample(n=self.sample_size, random_state=self.random_state)
-            logger.debug("Data loaded successfully from %s", self.data_path)
+            logger.debug(f"Data loaded successfully  of shape ={df.shape}")
             return df
            
         except Exception as e:
@@ -88,8 +91,9 @@ class Data_Ingestion():
 def main():
     """Main function to run data ingestion process"""
     try:
+        s3= s3_connection.s3_operations(bucket_name='ete-1', aws_access_key=os.getenv('AWS_ACCESS_ID'), aws_secret_key=os.getenv('AWS_SECRET_ACCESS_KEY'))
         data_ingestion = Data_Ingestion()
-        df = data_ingestion.load_data()
+        df = s3.fetch_file_from_s3("Twitter_Data.csv")
         train_df, test_df = data_ingestion.split_data(df)
         data_ingestion.save_data(train_df, test_df, 'data')
         logger.info("Data ingestion completed successfully")

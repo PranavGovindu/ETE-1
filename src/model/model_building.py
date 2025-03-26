@@ -79,7 +79,11 @@ def main():
         params_path = "params.yaml"
         params=model_builder.load_params(params_path)
 
-        trained_model = model_builder.train_model(X_train, y_train,params["model_building"]["hyperparameters"]["logistic_regression"]["C"],params["model_building"]["hyperparameters"]["logistic_regression"]["solver"],params["model_building"]["hyperparameters"]["logistic_regression"]["penalty"])
+        trained_model = model_builder.train_model(
+            X_train,
+            y_train,params["model_building"]["hyperparameters"]["logistic_regression"]["C"],
+            params["model_building"]["hyperparameters"]["logistic_regression"]["solver"],
+            params["model_building"]["hyperparameters"]["logistic_regression"]["penalty"])
 
         # Save model in ONNX format
         model_path = "models/model.onnx"
