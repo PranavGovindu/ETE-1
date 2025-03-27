@@ -50,17 +50,17 @@ class PreProcess():
     def preprocess_text(self,text, params):
         """Clean and preprocess text data"""
         try:  
-            if params['lowercase']:
-                text = text.lower()
+           
+            text = text.lower()
 
-            if params['remove_punctuation']:
-                text = re.sub(r'[^\w\s]', '', text)
+         
+            text = re.sub(r'[^\w\s]', '', text)
 
-            if params['remove_stopwords']:
-                nltk.download('stopwords', quiet=True)
-                stop_words = set(stopwords.words('english'))
-                tokens = text.split()
-                text = ' '.join([word for word in tokens if word not in stop_words])
+          
+            nltk.download('stopwords', quiet=True)
+            stop_words = set(stopwords.words('english'))
+            tokens = text.split()
+            text = ' '.join([word for word in tokens if word not in stop_words])
             
 
             return text

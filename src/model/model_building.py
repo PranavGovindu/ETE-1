@@ -75,6 +75,10 @@ def main():
         data = model_builder.load_data(data_path)
         X_train = data.iloc[:, :-1].values
         y_train = data.iloc[:, -1].values
+        
+        print(X_train.shape)
+        print(y_train.shape)
+        print("Number of features:", X_train.shape[1])
 
         params_path = "params.yaml"
         params=model_builder.load_params(params_path)

@@ -12,7 +12,7 @@ paths:
 data_ingestion:
   dataset_name: "Twitter"
   test_size: 0.2
-  sample_size: 1501
+  sample_size: 150000
 
 data_preprocessing:
   remove_stopwords: true
@@ -25,14 +25,14 @@ data_preprocessing:
 feature_engineering:
   vectorizer_type: "tfidf"
   ngram_range: [1, 2]
-  max_features: 500
+  max_features: 5000
 
 model_building:
   model_type: "logistic_regression"
   hyperparameters:
     logistic_regression:
       C: 1.0
-      max_iter: 200
+      max_iter: 1000
       penalty: "l2"
       solver: "liblinear"
    

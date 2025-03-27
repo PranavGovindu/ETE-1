@@ -10,7 +10,7 @@ stages:
     params:
       params.yaml:
         base.random_state: 42
-        data_ingestion.sample_size: 1501
+        data_ingestion.sample_size: 150000
         data_ingestion.test_size: 0.2
     outs:
     - path: data/raw
@@ -28,8 +28,8 @@ stages:
       nfiles: 2
     - path: src/data_handling/data_preprocessing.py
       hash: md5
-      md5: 22b6f8f58f50939f98ee10ca0a21da0d
-      size: 2985
+      md5: 5045cf1d49e9c9b9439af8ea9cdfdee6
+      size: 2870
     params:
       params.yaml:
         data_preprocessing.lowercase: true
@@ -53,61 +53,61 @@ stages:
       nfiles: 2
     - path: src/features/feature_engineering.py
       hash: md5
-      md5: 8aff153b4e67f00042ace7a9bd4f5fdf
-      size: 4098
+      md5: 56c7dd18c3104c4d9b442ff946940a09
+      size: 4458
     params:
       params.yaml:
-        feature_engineering.max_features: 500
+        feature_engineering.max_features: 5000
         feature_engineering.ngram_range:
         - 1
         - 2
     outs:
     - path: data/processed
       hash: md5
-      md5: 39b87a78d907055a393621e51cd68d20.dir
-      size: 342647895
+      md5: f0de3dcab09d4383de18b15df3176286.dir
+      size: 3289424348
       nfiles: 2
     - path: models/vectorizer.pkl
       hash: md5
-      md5: ac6d019ac400b1ad4e7615baa3af2e72
-      size: 18693
+      md5: ffdc966f52c166683fd49a89f0c5e2de
+      size: 188835
   model_building:
     cmd: python src/model/model_building.py
     deps:
     - path: data/processed
       hash: md5
-      md5: 39b87a78d907055a393621e51cd68d20.dir
-      size: 342647895
+      md5: f0de3dcab09d4383de18b15df3176286.dir
+      size: 3289424348
       nfiles: 2
     - path: src/model/model_building.py
       hash: md5
-      md5: 89e2a9b1a784fca728449e553ee7a896
-      size: 3367
+      md5: 7f418e77872bcdd090f86662a0b7de5b
+      size: 3493
     params:
       params.yaml:
         model_building.hyperparameters:
           logistic_regression:
             C: 1.0
-            max_iter: 200
+            max_iter: 1000
             penalty: l2
             solver: liblinear
         model_building.hyperparameters.logistic_regression.C: 1.0
-        model_building.hyperparameters.logistic_regression.max_iter: 200
+        model_building.hyperparameters.logistic_regression.max_iter: 1000
         model_building.hyperparameters.logistic_regression.penalty: l2
         model_building.hyperparameters.logistic_regression.solver: liblinear
         model_building.model_type: logistic_regression
     outs:
     - path: models/model.onnx
       hash: md5
-      md5: 1be91037554f9e7f7de3cc9d1b288f2f
-      size: 8146
+      md5: dbb2bd8930993769487ab9c1c272f4e2
+      size: 75649
   model_evaluation:
     cmd: python src/model/model_evaluation.py
     deps:
     - path: models/model.onnx
       hash: md5
-      md5: 1be91037554f9e7f7de3cc9d1b288f2f
-      size: 8146
+      md5: dbb2bd8930993769487ab9c1c272f4e2
+      size: 75649
     - path: src/model/model_evaluation.py
       hash: md5
       md5: 3902b99c48d057fc875bf07e64be4f66
@@ -123,18 +123,18 @@ stages:
     outs:
     - path: reports/metrics.json
       hash: md5
-      md5: 279760201a3a24e4e8bb557a9f233eb6
-      size: 144
+      md5: e9ca186100c9acbea5b56bb1babbdcad
+      size: 143
     - path: reports/model_info.json
       hash: md5
-      md5: 46a21747a8d8e1be3c3a84e4c670cf05
+      md5: 9515c4991889d5825220235dd520bf2b
       size: 94
   model_registration:
     cmd: python src/model/model_registry.py
     deps:
     - path: reports/model_info.json
       hash: md5
-      md5: 46a21747a8d8e1be3c3a84e4c670cf05
+      md5: 9515c4991889d5825220235dd520bf2b
       size: 94
     - path: src/model/model_registry.py
       hash: md5
