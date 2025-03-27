@@ -17,6 +17,8 @@ from prometheus_client import Counter, Histogram, generate_latest, CollectorRegi
 from sklearn.feature_extraction.text import TfidfVectorizer
 from src.data_handling import data_preprocessing
 from src.logger import logger
+from sklearn.feature_extraction.text import TfidfTransformer
+
 
 app = FastAPI()
 
@@ -51,7 +53,7 @@ class ModelLoader:
             self.vectorizer = self.load_vectorizer()
             
             # Load ONNX model
-            self.model = self.load_onnx_model()
+            self.model = self.load_model()
             self.inspect_model()
             
             logger.info("✅ Model and vectorizer loaded successfully!")
@@ -82,43 +84,24 @@ class ModelLoader:
 
         except Exception as e:
             logger.error(f"Error inspecting ONNX model: {e}")
+
+
     def load_vectorizer(self, vectorizer_path='models/vectorizer.pkl'):
-        """Load and fully restore vectorizer"""
+        """Load and restore the vectorizer"""
         try:
             with open(vectorizer_path, 'rb') as f:
-                original_vectorizer = pickle.load(f)
+                vectorizer = pickle.load(f)
 
-            # Create a new vectorizer with the same configuration
-            new_vectorizer = TfidfVectorizer(
-                stop_words='english', 
-                max_features=None
-            )
-
-            # Manually copy critical attributes
-            new_vectorizer.vocabulary_ = dict(list(original_vectorizer.vocabulary_.items())[:])
-
-            # If the original vectorizer has a fitted transformer, recreate it
-            if hasattr(original_vectorizer, '_tfidf'):
-                from sklearn.feature_extraction.text import TfidfTransformer
-                new_vectorizer._tfidf = TfidfTransformer(
-                    norm=original_vectorizer._tfidf.norm,
-                    use_idf=original_vectorizer._tfidf.use_idf,
-                    smooth_idf=original_vectorizer._tfidf.smooth_idf
-                )
-                new_vectorizer._tfidf.idf_ = original_vectorizer._tfidf.idf_[:]
-
-            logger.info(f"📦 Vectorizer fully restored. Vocabulary size: {len(new_vectorizer.vocabulary_)}")
-            return new_vectorizer
-
+            logger.info(f" Vectorizer Loaded. Vocabulary size: {len(vectorizer.vocabulary_)}")
+            return vectorizer
         except Exception as e:
-            logger.warning(f"❌ Error loading vectorizer: {e}")
-            return TfidfVectorizer(
-                stop_words='english', 
-                max_features=None
-            )
+            logger.error(f" Error loading vectorizer: {e}")
+            return None
 
-    def load_onnx_model(self, model_path='models/model.onnx'):
-        """Load ONNX model"""
+    
+
+    def load_model(self, model_path='models/model.onnx'):
+        """Load  model"""
         try:
             onnx_model = onnx.load(model_path)
             
@@ -135,10 +118,11 @@ class ModelLoader:
     def predict(self, text):
         """Predict the class of the input text with comprehensive debugging"""
         try:
-            # If model is not loaded, return a dummy prediction
+            
+            #dummy try because earlier model loading was failing sometimes
             if self.model is None:
                 logger.info("Using dummy model for prediction")
-                return 1  # Return a dummy positive sentiment
+                return 1 
                 
             # Cleaning the text
             normalized_text = self.normalize_text(text)
@@ -176,30 +160,22 @@ class ModelLoader:
     def normalize_text(self, text):
         """Enhanced text normalization with logging"""
         try:
-            # Load parameters from YAML file
             try:
                 params = yaml.safe_load(open('params.yaml'))
                 
-                # Create an instance of PreProcess
                 preprocessor = data_preprocessing.PreProcess(train_path='', test_path='')
                 
-                # Call preprocess_text as an instance method
                 normalized_text = preprocessor.preprocess_text(text, params['data_preprocessing'])
                 
-                # Additional logging
-                logger.info(f"Preprocessing steps applied to: {text}")
-                logger.info(f"Resulting normalized text: {normalized_text}")
-                
+               
                 return normalized_text
             except Exception as inner_e:
                 logger.warning(f"Error in preprocessing: {inner_e}, using simple normalization")
-                # Simple normalization as fallback
-                return text.lower().strip()
+                return text.lower().strip() #just fall back step 
         except Exception as e:
             logger.error(f"Error in normalize_text: {e}")
             return text
 
-    # Initialize the model loader
 model_loader = ModelLoader()
 
 @app.get("/", response_class=HTMLResponse)
@@ -221,7 +197,7 @@ async def home(request: Request):
         REQUEST_LATENCY.labels(endpoint="/").observe(time.time() - start_time)
         return response
     except Exception as e:
-        logger.error(f"❌ Template rendering error: {e}")
+        logger.error(f"Template  error: {e}")
         return HTMLResponse(content="""
             <h1>Text Classification App</h1>
             <p style="color: red">Error: Template not found or invalid</p>
@@ -244,20 +220,20 @@ async def predict(request: Request, text: str = Form(...)):
             {
                 "request": request,
                 "result": prediction,
-                "text": text,  # Pass the original text back to the template
+                "text": text,  
                 "title": "Prediction Result"
             }
         )
     except Exception as e:
-        logger.error(f"❌ Prediction error: {e}")
+        logger.error(f" Prediction error: {e}")
         REQUEST_LATENCY.labels(endpoint="/predict").observe(time.time() - start_time)
         return templates.TemplateResponse(
             "index.html",
             {
                 "request": request,
                 "error": "Sorry, we encountered an error. Please try again later.",
-                "text": text,  # Pass the original text back to the template
-                "message": "We appreciate your patience! 🙏",
+                "text": text,  
+                "message": "Error",
                 "title": "Error"
             }
         )
@@ -269,5 +245,5 @@ async def metrics():
 
 if __name__ == "__main__":
     import uvicorn
-    logger.info("🚀 Starting application...")
+    logger.info(" Starting application")
     uvicorn.run(app, host="0.0.0.0", port=5000)
