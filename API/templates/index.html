@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="icon" href="{{ url_for('static', path='favicon.ico') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .error {
+            color: #d32f2f;
+            padding: 10px;
+            background: #ffebee;
+            border-radius: 4px;
+        }
+        .message {
+            color: #388e3c;
+            padding: 10px;
+            background: #e8f5e9;
+            border-radius: 4px;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e3f2fd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ title }}</h1>
+        
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+        
+        {% if message %}
+        <div class="message">{{ message }}</div>
+        {% endif %}
+        
+        <form method="post" action="/predict">
+            <label for="text">Enter text to classify:</label><br>
+            <textarea id="text" name="text" rows="5" required></textarea><br>
+            <button type="submit">Classify Text</button>
+        </form>
+        
+        {% if result is not none %}
+        <div class="result">
+            <h2>Classification Result:</h2>
+            {% if result == 1 %}
+            <p><strong>Positive yay</strong></p>
+            {% elif result == 0 %}
+            <p><strong>Neutral </strong></p>
+            {% elif result == -1 %}
+            <p><strong>Negative boo</strong></p>
+            {% else %}
+            <p><strong>Result: {{ result }}</strong></p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
