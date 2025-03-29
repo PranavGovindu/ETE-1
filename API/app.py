@@ -92,7 +92,7 @@ class ModelLoader:
             with open(vectorizer_path, 'rb') as f:
                 vectorizer = pickle.load(f)
 
-            logger.info(f" Vectorizer Loaded. Vocabulary size: {len(vectorizer.vocabulary_)}")
+            logger.info(f" Vectorizer restored. Vocabulary size: {len(vectorizer.vocabulary_)}")
             return vectorizer
         except Exception as e:
             logger.error(f" Error loading vectorizer: {e}")

@@ -39,7 +39,9 @@ model_building:
 model_evaluation:
   metrics: ["accuracy", "precision", "recall", "f1"]
 
+
+
 model_registry:
-  model_name: "logistic_regression v1"
-  model_stage: "staging"
-  model_alias: "contender"
+  model_name: "logistic regression v1"
+  model_alias: "champion"  # or "challenger", "latest"
+  model_info_path: "reports/figures/model_info.json"
