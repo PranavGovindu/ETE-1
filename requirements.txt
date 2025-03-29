@@ -174,5 +174,9 @@ yarl==1.9.4
 zc.lockfile==3.0.post1
 zipp==3.19.2
 prometheus_client
+dotenv==1.0.0
+requests==2.31.0
+fastapi==0.103.1
+uvicorn==0.23.2
 
 -e .
