@@ -36,9 +36,10 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Run pipeline
+
+
+      - name: run pipeline
         env:
           CAPSTONE_TEST: ${{ secrets.DAGSHUB_ACCESS_TOKEN }}
         run: |
