@@ -12,7 +12,6 @@ uvicorn
 pydantic
 fastapi
 botocore
-yaml
 dotenv
 boto3
 onnx
