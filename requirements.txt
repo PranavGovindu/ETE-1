@@ -131,8 +131,8 @@ pytz==2024.1
 PyYAML==6.0.1
 querystring-parser==1.2.4
 regex==2024.7.24
-requests==2.32.3
-requests-toolbelt==1.0.0
+requests
+requests-toolbelt
 rfc3986==1.5.0
 rich==13.1.0
 rsa==4.7.2
@@ -175,7 +175,7 @@ zc.lockfile==3.0.post1
 zipp==3.19.2
 prometheus_client
 dotenv
-requests==2.31.0
+requests
 fastapi==0.103.1
 uvicorn==0.23.2
 
