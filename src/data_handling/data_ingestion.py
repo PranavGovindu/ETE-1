@@ -91,7 +91,7 @@ class Data_Ingestion():
 def main():
     """Main function to run data ingestion process"""
     try:
-        s3= s3_connection.s3_operations(bucket_name='ete-1', aws_access_key=os.getenv('AWS_ACCESS_ID'), aws_secret_key=os.getenv('AWS_SECRET_ACCESS_KEY'))
+        s3= s3_connection.s3_operations(bucket_name='ete-1', aws_access_key=os.getenv('AWS_ACCESS_KEY_ID'), aws_secret_key=os.getenv('AWS_SECRET_ACCESS_KEY'))
         data_ingestion = Data_Ingestion()
         df = s3.fetch_file_from_s3("Twitter_Data.csv")
         train_df, test_df = data_ingestion.split_data(df)
