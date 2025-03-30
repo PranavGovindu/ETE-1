@@ -4,9 +4,7 @@ scikit-learn
 matplotlib
 seaborn
 torch
-torchvision
-torchaudio
-tensorflow
+
 requests
 flask
 fastapi
