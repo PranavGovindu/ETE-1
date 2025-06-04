@@ -8,8 +8,8 @@ import numpy as np
 import yaml
 import onnx
 import onnxruntime as rt
-from fastapi import FastAPI, Form, Request
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, Form, Request, HTTPException
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
@@ -18,9 +18,15 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from src.data_handling import data_preprocessing
 from src.logger import logger
 from sklearn.feature_extraction.text import TfidfTransformer
+from pydantic import BaseModel
+from typing import List, Optional
+import json
 
-
-app = FastAPI()
+app = FastAPI(
+    title="Text Classification API",
+    description="A FastAPI application for text classification with ML model serving",
+    version="1.0.0"
+)
 
 BASE_DIR = Path(__file__).parent
 TEMPLATES_DIR = BASE_DIR / "templates"
@@ -44,6 +50,21 @@ REQUEST_LATENCY = Histogram(
 PREDICTION_COUNT = Counter(
     "model_prediction_count", "Count of predictions for each class", ["prediction"], registry=registry
 )
+
+class PredictionRequest(BaseModel):
+    text: str
+    return_probabilities: Optional[bool] = False
+
+class BatchPredictionRequest(BaseModel):
+    texts: List[str]
+    return_probabilities: Optional[bool] = False
+
+class ModelInfo(BaseModel):
+    model_type: str
+    input_shape: List[int]
+    output_shape: List[int]
+    vocabulary_size: int
+    last_updated: str
 
 class ModelLoader:
     def __init__(self):
@@ -176,6 +197,32 @@ class ModelLoader:
             logger.error(f"Error in normalize_text: {e}")
             return text
 
+    def get_probabilities(self, text):
+        """Get prediction probabilities for the input text"""
+        try:
+            if self.model is None:
+                logger.info("Using dummy model for probabilities")
+                return [0.5, 0.5]  # Dummy probabilities
+                
+            # Clean and transform text
+            normalized_text = self.normalize_text(text)
+            features = self.vectorizer.transform([normalized_text])
+            features_array = features.toarray()
+            limited_features = features_array[:, :].astype(np.float32)
+            
+            # Get probabilities
+            input_name = self.model.get_inputs()[0].name
+            output_names = [output.name for output in self.model.get_outputs()]
+            results = self.model.run(output_names, {input_name: limited_features})
+            
+            # Assuming the second output contains probabilities
+            probabilities = results[1][0].tolist()
+            
+            return probabilities
+        except Exception as e:
+            logger.error(f"Error getting probabilities: {e}")
+            return None
+
 model_loader = ModelLoader()
 
 @app.get("/", response_class=HTMLResponse)
@@ -243,7 +290,70 @@ async def metrics():
     """Expose Prometheus metrics"""
     return generate_latest(registry), 200, {"Content-Type": CONTENT_TYPE_LATEST}
 
+@app.get("/api/health")
+async def health_check():
+    """Health check endpoint"""
+    return {"status": "healthy", "model_loaded": model_loader.model is not None}
+
+@app.get("/api/model/info")
+async def model_info():
+    """Get model information"""
+    try:
+        model_info = {
+            "model_type": "ONNX",
+            "input_shape": model_loader.model.get_inputs()[0].shape,
+            "output_shape": model_loader.model.get_outputs()[0].shape,
+            "vocabulary_size": len(model_loader.vectorizer.vocabulary_) if model_loader.vectorizer else 0,
+            "last_updated": time.strftime("%Y-%m-%d %H:%M:%S")
+        }
+        return model_info
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/predict")
+async def predict_api(request: PredictionRequest):
+    """API endpoint for single prediction"""
+    REQUEST_COUNT.labels(method="POST", endpoint="/api/predict").inc()
+    start_time = time.time()
+
+    try:
+        prediction = model_loader.predict(request.text)
+        PREDICTION_COUNT.labels(prediction=str(prediction)).inc()
+        REQUEST_LATENCY.labels(endpoint="/api/predict").observe(time.time() - start_time)
+
+        response = {"prediction": int(prediction)}
+        if request.return_probabilities:
+            response["probabilities"] = model_loader.get_probabilities(request.text)
+
+        return response
+    except Exception as e:
+        logger.error(f"API Prediction error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/predict/batch")
+async def predict_batch(request: BatchPredictionRequest):
+    """API endpoint for batch predictions"""
+    REQUEST_COUNT.labels(method="POST", endpoint="/api/predict/batch").inc()
+    start_time = time.time()
+
+    try:
+        predictions = []
+        for text in request.texts:
+            pred = model_loader.predict(text)
+            predictions.append({
+                "text": text,
+                "prediction": int(pred)
+            })
+            if request.return_probabilities:
+                predictions[-1]["probabilities"] = model_loader.get_probabilities(text)
+
+        REQUEST_LATENCY.labels(endpoint="/api/predict/batch").observe(time.time() - start_time)
+        return {"predictions": predictions}
+    except Exception as e:
+        logger.error(f"Batch Prediction error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 if __name__ == "__main__":
     import uvicorn
-    logger.info(" Starting application")
+    logger.info("Starting application")
     uvicorn.run(app, host="0.0.0.0", port=5000)

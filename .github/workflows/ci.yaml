@@ -15,14 +15,13 @@ jobs:
       - name: Show Pip Cache Path
         run: pip cache dir
       
-      - name: Cache pip dependencies
+      - name: Cache pip packages
         uses: actions/cache@v3
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}-v1
           restore-keys: |
             ${{ runner.os }}-pip-
-            ${{ runner.os }}-
       
       - name: Install dependencies
         run: |
