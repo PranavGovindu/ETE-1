@@ -170,11 +170,4 @@ The platform includes comprehensive monitoring capabilities:
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Authors
 
-- Pranav - Initial work
-
-## Acknowledgments
-
-- Thanks to all contributors and maintainers
-- Special thanks to the open-source community for the amazing tools used in this project
